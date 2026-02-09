@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  schema-service:
+    build: ./schema-server
+    restart: always  
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./data:/data
+
+  values-service:
+    build: ./values-server
+    restart: always  
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./data:/data
+
+  bot-service:
+    build: ./bot-server
+    restart: always  
+    ports:
+      - "5003:5003"
+    environment:
+      - OLLAMA_MODEL=mistral
+      - SCHEMA_URL=http://schema-service:5001
+      - VALUES_URL=http://values-service:5002
+      - OLLAMA_API_URL=http://host.docker.internal:11434/api/generate
+    depends_on:
+      - schema-service
+      - values-service
